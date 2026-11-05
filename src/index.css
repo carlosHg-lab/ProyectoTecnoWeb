@@ -1,0 +1,129 @@
+/* src/index.css */
+:root {
+  --color-bg: #0b0e14;
+  --color-bg-card: rgba(30, 27, 75, 0.65);
+  --color-primary: #7c3aed;
+  --color-primary-hover: #6d28d9;
+  --color-accent-cyan: #38bdf8;
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-danger: #ef4444;
+  --shadow-glow: 0 0 25px rgba(124, 58, 237, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  background-image: radial-gradient(circle at top right, #1e1b4b 0%, var(--color-bg) 65%);
+  color: var(--color-text-main);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* ==========================================
+   FOOTER STYLES
+   ========================================== */
+.footer {
+  width: 100%;
+  background: rgba(11, 14, 20, 0.95);
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
+  padding: 3rem 2rem 1.5rem;
+  margin-top: auto;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.footer__content {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .footer__content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.footer__brand-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.footer__brand-title span {
+  color: #38bdf8;
+}
+
+.footer__text {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #94a3b8;
+}
+
+.footer__col h5 {
+  color: #f8fafc;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.footer__col a {
+  display: block;
+  color: #94a3b8;
+  text-decoration: none;
+  margin-bottom: 0.4rem;
+  transition: color 0.2s;
+  font-size: 0.85rem;
+}
+
+.footer__col a:hover {
+  color: #38bdf8;
+}
+
+.footer__col p {
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.footer__contact-btn {
+  display: inline-block !important;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8 !important;
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.footer__contact-btn:hover {
+  background: rgba(56, 189, 248, 0.2);
+  transform: translateY(-1px);
+}
+
+.footer__bottom {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: #64748b;
+}
