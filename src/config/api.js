@@ -1,119 +1,148 @@
-// src/config/api.js
 
-const BASE_URL = 'https://opentdb.com';
-const TRANSLATE_URL = 'https://api.mymemory.translated.net/get';
+// CONFIGURACIÓN DE LA API
+export const BASE_URL = "https://carlos-trivia-api.loca.lt";
+
 export const API_ENDPOINTS = {
-  obtenerToken: `${BASE_URL}/api_token.php?command=request`,
-  resetearToken: (token) => `${BASE_URL}/api_token.php?command=reset&token=${token}`,
-  obtenerCategorias: `${BASE_URL}/api_category.php`,
 
-  obtenerPreguntas: (cantidad = 10, token = null, categoria = '', dificultad = '') => {
-    let url = `${BASE_URL}/api.php?amount=${cantidad}&type=multiple`;
-    if (token) url += `&token=${token}`;
-    if (categoria) url += `&category=${categoria}`;
-    if (dificultad) url += `&difficulty=${dificultad}`;
-    return url;
-  }
+    // Categorías
+    obtenerCategorias: `${BASE_URL}/api/categorias`,
+
+    // Preguntas aleatorias
+    obtenerPreguntas: (cantidad = 10, categoria = "", dificultad = "") => {
+        const params = new URLSearchParams();
+
+        params.append("cantidad", cantidad);
+
+        if (categoria) params.append("categoria", categoria);
+        if (dificultad) params.append("dificultad", dificultad);
+
+        return `${BASE_URL}/api/preguntas/aleatorias?${params.toString()}`;
+    },
+
+    verificarRespuesta: `${BASE_URL}/api/preguntas/verificar`,
+
+    // Administración de preguntas
+    administrarPreguntas: `${BASE_URL}/api/preguntas`,
+    eliminarPregunta: (id) => `${BASE_URL}/api/preguntas/${id}`,
+
+    // Partidas
+    crearPartida: `${BASE_URL}/api/partidas`,
+
+    obtenerPartida: (id) =>
+        `${BASE_URL}/api/partidas/${encodeURIComponent(id)}`,
+
+    unirsePartida: (id) =>
+        `${BASE_URL}/api/partidas/${encodeURIComponent(id)}/unirse`,
+
+    iniciarPartida: (id) =>
+        `${BASE_URL}/api/partidas/${encodeURIComponent(id)}/iniciar`,
+
+    responderPregunta: (id) =>
+        `${BASE_URL}/api/partidas/${encodeURIComponent(id)}/responder`,
+
+    siguientePregunta: (id) =>
+        `${BASE_URL}/api/partidas/${encodeURIComponent(id)}/siguiente`,
+
+    obtenerPreguntaActual: (id) =>
+        `${BASE_URL}/api/partidas/${encodeURIComponent(id)}/pregunta`,
+
+    obtenerEventos: (id) =>
+        `${BASE_URL}/api/partidas/${encodeURIComponent(id)}/eventos`,
+
+    obtenerResultadosPartida: (id) =>
+        `${BASE_URL}/api/partidas/${encodeURIComponent(id)}/resultados`,
+
+    // Historial
+    obtenerHistorial: `${BASE_URL}/api/resultados`
 };
 
-// Funci├│n para limpiar entidades HTML de OpenTDB (ej. convierte &quot; en ")
-const decodificarHTML = (texto) => {
-  const txt = document.createElement('textarea');
-  txt.innerHTML = texto;
-  return txt.value;
-};
-// 2. TRADUCIR UN TEXTO DE INGLES A ESPAÑOL
-const traducirTexto = async (texto) => {
 
-  if (!texto || texto.trim() === '') {
-    return texto;
-  }
+// ==========================================
+// PETICIONES HTTP
+// ==========================================
 
-  const url = `${TRANSLATE_URL}?q=${encodeURIComponent(texto)}&langpair=en|es`;
+export const apiRequest = async (
+    url,
+    {
+        method = "GET",
+        body = null,
+        jugadorToken = null,
+        adminKey = null
+    } = {}
+) => {
 
-  const respuesta = await fetch(url);
+    const headers = {
+        "Accept": "application/json"
+    };
 
-  if (!respuesta.ok) {
-    throw new Error('Error al conectar con el servicio de traducción.');
-  }
-
-  const datos = await respuesta.json();
-
-  if (datos.responseStatus !== 200) {
-    throw new Error('No se pudo traducir el texto.');
-  }
-
-  return decodificarHTML(datos.responseData.translatedText);
-};
-
-//fUNCION DE TRADUCCION DE TEXTOS
-
-const traducirVarios = async (textos) => {
-  const resultados = new Array(textos.length);
-  let posicion = 0;
-  const trabajador = async () => {
-    while (posicion < textos.length) {
-      const indice = posicion;
-      posicion++;
-      resultados[indice] = await traducirTexto(textos[indice]);
+    if (body !== null) {
+        headers["Content-Type"] = "application/json";
     }
-  };
-  await Promise.all([
-    trabajador(),
-    trabajador(),
-    trabajador()
-  ]);
-  return resultados;
-};
-// Transforma el objeto de OpenTDB al formato que espera GameBoard.jsx
-// 4. FORMATEAR Y TRADUCIR LAS PREGUNTAS
-export const formatearPreguntas = async (resultadosAPI) => {
-  const preguntasOriginales = resultadosAPI.map((item) => {
-    return {
-      category: decodificarHTML(item.category),
-      question: decodificarHTML(item.question),
-      correct: decodificarHTML(item.correct_answer),
-      incorrectas: item.incorrect_answers.map(decodificarHTML)
-    };
-  });
 
-  // Reunir todos los textos que necesitan traducción
-  const textos = [];
-  preguntasOriginales.forEach((item) => {
-    textos.push(item.category);
-    textos.push(item.question);
-    textos.push(item.correct);
-    item.incorrectas.forEach((respuesta) => {
-      textos.push(respuesta);
+    if (jugadorToken) {
+        headers["X-Jugador-Token"] = jugadorToken;
+    }
+
+    if (adminKey) {
+        headers["X-Admin-Key"] = adminKey;
+    }
+
+    const respuesta = await fetch(url, {
+        method,
+        headers,
+        body: body !== null ? JSON.stringify(body) : null
     });
-  });
-  
-  // Traducir todos los textos
-  const textosTraducidos = await traducirVarios(textos);
-  // Reconstruir las preguntas
-  let posicion = 0;
-  const preguntasFinales = preguntasOriginales.map((item) => {
-    const categoria = textosTraducidos[posicion++];
-    const pregunta = textosTraducidos[posicion++];
-    const respuestaCorrecta = textosTraducidos[posicion++];
-    const respuestasIncorrectas = [];
-    item.incorrectas.forEach(() => {
-      respuestasIncorrectas.push(textosTraducidos[posicion++]);
+
+    if (respuesta.status === 204) {
+        return null;
+    }
+
+    const texto = await respuesta.text();
+
+    let datos = null;
+
+    if (texto) {
+        try {
+            datos = JSON.parse(texto);
+        } catch {
+            throw new Error("El servidor devolvió una respuesta inválida.");
+        }
+    }
+
+    if (!respuesta.ok) {
+        throw new Error(
+            datos?.error ||
+            datos?.mensaje ||
+            `Error HTTP ${respuesta.status}`
+        );
+    }
+
+    return datos;
+};
+
+
+// ==========================================
+// EVENTOS EN TIEMPO REAL (SSE)
+// ==========================================
+
+export const conectarEventosPartida = (id, alRecibirEstado) => {
+
+    const origen = new EventSource(
+        API_ENDPOINTS.obtenerEventos(id)
+    );
+
+    origen.addEventListener("estado", (evento) => {
+        try {
+            const partida = JSON.parse(evento.data);
+            alRecibirEstado(partida);
+        } catch (error) {
+            console.error("Error procesando evento:", error);
+        }
     });
-    // Mezclar las respuestas
-    const opcionesMezcladas = [
-      ...respuestasIncorrectas,
-      respuestaCorrecta
-    ];
-    opcionesMezcladas.sort(() => Math.random() - 0.5);
-    // Encontrar la posición de la respuesta correcta
-    const indiceCorrecto = opcionesMezcladas.indexOf(respuestaCorrecta);
-    return {
-      category: categoria,
-      question: pregunta,
-      options: opcionesMezcladas,
-      correct: indiceCorrecto
+
+    origen.onerror = (error) => {
+        console.error("Error en conexión SSE:", error);
     };
-  });
-  return preguntasFinales;
+
+    return origen;
 };
