@@ -1,7 +1,14 @@
-
-// CONFIGURACIÓN DE LA API
+import { EventSourcePolyfill } from "event-source-polyfill";
 export const BASE_URL = "https://carlos-trivia-api.loca.lt";
-
+export const conectarEventosPartida = (id, alRecibirEstado) => {
+    const origen = new EventSourcePolyfill(
+        API_ENDPOINTS.obtenerEventos(id),
+        {
+            headers: {
+                "bypass-tunnel-reminder": "true"
+            }
+        }
+    );
 export const API_ENDPOINTS = {
 
     // Categorías
@@ -72,8 +79,9 @@ export const apiRequest = async (
 ) => {
 
     const headers = {
-        "Accept": "application/json"
-    };
+    "Accept": "application/json",
+    "bypass-tunnel-reminder": "true"
+};
 
     if (body !== null) {
         headers["Content-Type"] = "application/json";
