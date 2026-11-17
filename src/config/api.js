@@ -56,7 +56,12 @@ export const API_ENDPOINTS = {
     // Historial
     obtenerHistorial: `${BASE_URL}/api/resultados`
 };
+
+
+// ==========================================
 // PETICIONES HTTP
+// ==========================================
+
 export const apiRequest = async (
     url,
     {
@@ -105,6 +110,7 @@ export const apiRequest = async (
             throw new Error("El servidor devolvió una respuesta inválida.");
         }
     }
+
     if (!respuesta.ok) {
         throw new Error(
             datos?.error ||
@@ -115,7 +121,12 @@ export const apiRequest = async (
 
     return datos;
 };
+
+
+// ==========================================
 // EVENTOS EN TIEMPO REAL (SSE)
+// ==========================================
+
 export const conectarEventosPartida = (id, alRecibirEstado) => {
     const origen = new EventSourcePolyfill(
         API_ENDPOINTS.obtenerEventos(id),
